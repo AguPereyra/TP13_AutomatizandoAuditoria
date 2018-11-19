@@ -22,6 +22,7 @@
 #  
 #  
 import pdb
+import subprocess
 
 #Clase que se encarga de escribir un archivo con formato de tabla
 #para los datos que le pasan
@@ -79,13 +80,54 @@ class Writer():
             fl.write(txt)
             fl.close()
 
-def main(args):
+
+class SoftwareAudit():
+    def __init__(self):
+        pass
+    
+    #Clase que retorna el software instalado
+    #en la maquina y su version si conoce
+    #el SO host
+    #Parametros:
+    #           platform: El SO de la maquina host, si es Linux, indica
+    #                     la distribucion.
+    def get_soft_inst(self, platform):
+        #Obtencion de software instalado
+        #Depende del SO
+        #Diccionario de comandos por SO
+        dict_os = {'arch':('pacman', '-Q')}
+        process = subprocess.run(dict_os[platform], capture_output=True, text=True)
+        
+        #Formateo del resultado
+        #¡Ojo! Depende de cómo me lo devuelva la consola
+        str1 = process.stdout
+        header = ['Software', 'Version']
+        return_list = str1.split('\n')
+        length = len(return_list)
+        return_list = return_list[:length-1]
+        for i in range(length - 1):
+            return_list[i] = return_list[i].split()
+        return_list.insert(0, header)
+        return return_list
+
+
+def testWrite(self):
     writer = Writer()
     arg = (('0123456789012345','Licencia'),('unrar', 'GPL'),('zip', 'GPL-2'),('vim', 'Charityware'))
     print(writer.write_txt(arg))
     
     #Probar escritura de archivo
     writer.write(arg, 'test.txt')
+
+def main(args):
+    #Plataforma, debe ser Windows o si es Linux, su distribucion
+    platform = 'arch'
+    sftAudit = SoftwareAudit()
+    writer = Writer()
+
+    soft = sftAudit.get_soft_inst(platform)
+    print(soft)
+    writer.write(soft, 'soft.txt')
     return 0
 
 if __name__ == '__main__':
