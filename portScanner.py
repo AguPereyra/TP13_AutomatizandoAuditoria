@@ -39,7 +39,7 @@ class PortScanner():
         for port in range(beginPort,endPort+1): 
             try:
                 sck.connect((host,port))
-                resultado+=  "Port "+str(port)+" abierto \n"
+                resultado+=  "Port: "+str(port)+" Service: "+socket.getservbyport(port)+" abierto \n"
                 contador+=1
                 sck.close()
          
