@@ -23,6 +23,8 @@
 #  
 import pdb
 import subprocess
+import platform
+from portScanner import PortScanner 
 
 #Clase que se encarga de escribir un archivo con formato de tabla
 #para los datos que le pasan
@@ -50,15 +52,21 @@ class Writer():
             if max_col > max_length:
                 max_length = max_col
         
+        #Obtener columnas
+        col = ['']
+        for i in range(len(arg[0])-1):
+            col.append('')
+
         empty_format = '|{:=<' + str(max_length) + '}'
         row_format = '|{:<' + str(max_length) + '}'
-        empty_format = empty_format*2 + '|' 
+        empty_format = empty_format*len(col) + '|' 
         row_format = row_format*len(arg[0]) + '|'
         text = row_format.format(*arg[0])
+
         for row in arg[1:]:
-            text += '\n' + empty_format.format(*('',''))
+            text += '\n' + empty_format.format(*col)
             text += '\n' + row_format.format(*row) 
-        text += '\n' + empty_format.format(*('',''))
+        text += '\n' + empty_format.format(*col)
         return text
 
     #Metodo que crea un archivo con los datos pasados
@@ -110,24 +118,38 @@ class SoftwareAudit():
         return_list.insert(0, header)
         return return_list
 
-
-def testWrite(self):
-    writer = Writer()
-    arg = (('0123456789012345','Licencia'),('unrar', 'GPL'),('zip', 'GPL-2'),('vim', 'Charityware'))
-    print(writer.write_txt(arg))
+#Clase que se encarga de realizar la auditoria de la maquina
+class AuditCenter():
+    def __init__(self):
+        pass
     
-    #Probar escritura de archivo
-    writer.write(arg, 'test.txt')
+    #Metodo que audita diferentes conceptos de la maquina
+    #anfitrion
+    def run(self):
+        sftAudit = SoftwareAudit()
+        portScan = PortScanner()
+        writer = Writer()
+
+        #Obtener OS
+        os = platform.system()
+        #Si es Linux, obtener distro
+        if os == 'Linux':
+            os = platform.linux_distribution()[0]
+
+        #Leer puertos
+        port_text = portScan.scan_ports(0, 2**16)
+        writer.write(port_text, 'puertos.txt')
+        print('Puertos leidos')
+
+        #Leer software instalado
+        soft_text = sftAudit.get_soft_inst(os)
+        writer.write(soft_text, 'soft.txt')
+        print('Software instalado revisado')
+
 
 def main(args):
-    #Plataforma, debe ser Windows o si es Linux, su distribucion
-    platform = 'arch'
-    sftAudit = SoftwareAudit()
-    writer = Writer()
-
-    soft = sftAudit.get_soft_inst(platform)
-    print(soft)
-    writer.write(soft, 'soft.txt')
+    audit = AuditCenter()
+    audit.run()
     return 0
 
 if __name__ == '__main__':

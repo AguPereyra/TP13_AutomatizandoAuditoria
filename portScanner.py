@@ -34,18 +34,21 @@ class PortScanner():
         sck = socket.socket()
         host = str(socket.gethostbyname(socket.gethostname()))
         #host = host.replace('.', "")
-        resultado=""
+        header=['Puerto','Servicio', 'Estado']
+        resultado = []
+        resultado.insert(0,header)
         contador=0
         for port in range(beginPort,endPort+1): 
             try:
                 sck.connect((host,port))
-                resultado+=  "Port: "+str(port)+" Service: "+socket.getservbyport(port)+" abierto \n"
+                resultado.append([str(port),socket.getservbyport(port), "abierto"])
                 contador+=1
                 sck.close()
          
             except :
                 pass#resultado+=  "Port "+str(port)+" cerrado \n"
-        resultado+= ("Puertos Abiertos: " +str(contador)+ "\nPuertos Cerrados: "+ str(9999-contador) )
+        resultado.append([str(contador),'','Puertos Abiertos'])
+        resultado.append([str(2**16-contador), '','Puertos Cerrados'])
         return resultado
 
 
