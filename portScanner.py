@@ -48,7 +48,7 @@ class PortScanner():
             except :
                 pass#resultado+=  "Port "+str(port)+" cerrado \n"
         resultado.append([str(contador),'','Puertos Abiertos'])
-        resultado.append([str(2**16-contador), '','Puertos Cerrados'])
+        resultado.append([str(2**16-contador-1), '','Puertos Cerrados'])
         return resultado
 
 
