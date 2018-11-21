@@ -21,10 +21,8 @@
 #  MA 02110-1301, USA.
 #  
 #  
-import pdb
-import subprocess
-import platform
-from portScanner import PortScanner 
+import pdb, subprocess, platform, inspect, os
+from portScanner import PortScanner
 
 #Clase que se encarga de escribir un archivo con formato de tabla
 #para los datos que le pasan
@@ -103,19 +101,24 @@ class SoftwareAudit():
         #Obtencion de software instalado
         #Depende del SO
         #Diccionario de comandos por SO
-        dict_os = {'arch':('pacman', '-Q')}
+        dict_os = {'arch':('pacman', '-Q'), 'Windows':('wmic','/', 'output', ':', os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+'\soft.txt' , 'product','get', 'name', ',', 'version')}
         process = subprocess.run(dict_os[platform], capture_output=True, text=True)
-        
+
+
+        #Si es Windows se imprime directamente
+        if platform == 'Windows':
+            print(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
+            return
         #Formateo del resultado
         #¡Ojo! Depende de cómo me lo devuelva la consola
         str1 = process.stdout
         header = ['Software', 'Version']
+        print(return_list)
         return_list = str1.split('\n')
         length = len(return_list)
         return_list = return_list[:length-1]
         for i in range(length - 1):
             return_list[i] = return_list[i].split()
-        return_list.insert(0, header)
         return return_list
 
 #Clase que se encarga de realizar la auditoria de la maquina
@@ -143,7 +146,9 @@ class AuditCenter():
 
         #Leer software instalado
         soft_text = sftAudit.get_soft_inst(os)
-        writer.write(soft_text, 'soft.txt')
+        #Si es Windows se imprime directamente
+        if os != 'Windows':
+            writer.write(soft_text, 'soft.txt')
         print('Software instalado revisado')
 
 
